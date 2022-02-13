@@ -4,17 +4,16 @@ const JWT_KEY = 'skf453wdanj3rfj93nos';
 
 
 module.exports.protectRoute = function protectRoute(req,res,next){
-    let dataObj = req.body;
-    console.log(req.body);
     // checking wether user is logged In or not using cookies (JWT encrypted cookies)
     try{
 
         // if isVerified token is Invalide then it will give an error and to the catch block 
-        // and if it is true then isVerified will contain some rendom value and pass the is statement 
+        // and if it is true then isVerified will contain some payload value and pass the is statement 
             // we can also skip the if() conduction and directly write the statement inside it
 
         // req.cookies.isLoggedIn this hashValue contain payload (_id), so while verifying [_id] is not required
         let isVerified = jwt.verify(req.cookies.isLoggedIn, JWT_KEY);
+        console.log(isVerified.payload);
         if( isVerified ){
             next();
         }
@@ -39,13 +38,12 @@ module.exports.logoutUser = function logoutUser(req,res){
 
 module.exports.getUserData = async function getUserData(req,res){
      
-    let dataObj = req.body;
-    console.log(req.body);
+    let dataObj = jwt.verify(req.cookies.isLoggedIn, JWT_KEY);
 
-    // let user = await userDataBase.findOne({ email: dataObj.email });
+    let userData = await userDataBase.findOne({ _id : dataObj.payload });
 
     res.json({
         message:"In the dashborad",
-        res: dataObj
+        res: userData
     })
 }

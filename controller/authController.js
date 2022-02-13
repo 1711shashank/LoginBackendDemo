@@ -16,7 +16,6 @@ module.exports.createAccount = async function createAccount(req, res) {
 module.exports.loginUser = async function loginUser(req, res) {
     try {
         let dataObj = req.body;
-        console.log(dataObj);
         res.cookie('isLoggedIn', 'false');
         if (dataObj.email && dataObj.password) {
             let user = await userDataBase.findOne({ email: dataObj.email });
