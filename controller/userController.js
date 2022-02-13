@@ -4,6 +4,8 @@ const JWT_KEY = 'skf453wdanj3rfj93nos';
 
 
 module.exports.protectRoute = function protectRoute(req,res,next){
+    let dataObj = req.body;
+    console.log(req.body);
     // checking wether user is logged In or not using cookies (JWT encrypted cookies)
     try{
 
@@ -25,15 +27,21 @@ module.exports.protectRoute = function protectRoute(req,res,next){
 }
 
 module.exports.logoutUser = function logoutUser(req,res){
+    let dataObj = req.body;
+    console.log(req.body);
+
     res.cookie('isLoggedIn', 'false');
     res.json({
-        message:"User LogOut Successfully"
+        message:"User LogOut Successfully",
+        data:dataObj 
     })
 }
 
 module.exports.getUserData = async function getUserData(req,res){
      
     let dataObj = req.body;
+    console.log(req.body);
+
     // let user = await userDataBase.findOne({ email: dataObj.email });
 
     res.json({
