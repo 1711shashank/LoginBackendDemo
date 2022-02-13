@@ -13,10 +13,12 @@ app.use('/', authRouter)
 authRouter
     .route('/signup')
     .post(createAccount);
-
 authRouter
     .route('/login')
     .post(loginUser);
+authRouter
+    .route('/logout')
+    .get(logoutUser);
 
 
 const userRouter = express.Router();
@@ -78,9 +80,17 @@ async function loginUser(req, res) {
     }
 }
 
+function logoutUser(req,res){
+    res.cookie('isLoggedIn', 'false');
+    res.json({
+        message:"User LogOut Successfully"
+    })
+
+}
+
 function getUserData(req,res){
     let userData = req.body;
-    console.log(req.cookies);
+    // console.log(req.cookies);
     if(req.cookies.isLoggedIn === 'true'){
         res.json({
             message:"In the dashborad",
