@@ -1,5 +1,7 @@
 const express = require("express");
 const userDataBase = require('./mongoDB');
+var jwt = require('jsonwebtoken');
+const JWT_KEY = 'skf453wdanj3rfj93nos';
 
 var cookieParser = require('cookie-parser');
 
@@ -26,13 +28,8 @@ app.use('/', userRouter)
     
 userRouter
     .route('/dashboard')
-    .get(getUserData);
+    .get(protectRoute, getUserData);
 
-
-
-// function getUser(req,res){
-//     res.send(users);
-// }
 
 async function createAccount(req, res) {
     let dataObj = req.body;
@@ -51,7 +48,10 @@ async function loginUser(req, res) {
             let user = await userDataBase.findOne({ email: dataObj.email });
             if (user) {
                 if (user.password == dataObj.password) {
-                    res.cookie('isLoggedIn', 'true');
+                    let uid = user['_id'];
+                    let jwtSign = jwt.sign({payload:uid},JWT_KEY);
+                    console.log(jwtSign);
+                    res.cookie('isLoggedIn', jwtSign);
                     res.json({
                         message: "LogIn Successfully",
                         data: user
@@ -80,26 +80,38 @@ async function loginUser(req, res) {
     }
 }
 
+function getUserData(req,res){
+    let userData = req.body;
+    res.json({
+        message:"In the dashborad",
+        res:userData
+    })
+}
+
 function logoutUser(req,res){
     res.cookie('isLoggedIn', 'false');
     res.json({
         message:"User LogOut Successfully"
     })
-
 }
 
-function getUserData(req,res){
-    let userData = req.body;
-    // console.log(req.cookies);
-    if(req.cookies.isLoggedIn === 'true'){
-        res.json({
-            message:"In the dashborad",
-            res:userData
-        })
+function protectRoute(req,res,next){
+    // checking wether user is logged In or not using cookies (JWT encrypted cookies)
+    try{
+
+        // if isVerified token is Invalide then it will give an error and to the catch block 
+        // and if it is true then isVerified will contain some rendom value and pass the is statement 
+            // we can also skip the if() conduction and directly write the statement inside it
+
+        // req.cookies.isLoggedIn this hashValue contain payload (_id), so while verifying [_id] is not required
+        let isVerified = jwt.verify(req.cookies.isLoggedIn, JWT_KEY);
+        if( isVerified ){
+            next();
+        }
     }
-    else{
+    catch{
         res.json({
-            message:"Please LogIn"
+            message: 'Please Login '
         })
     }
 }
