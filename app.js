@@ -1,8 +1,10 @@
 const express = require("express");
 const userDataBase = require('./mongoDB');
 
+var cookieParser = require('cookie-parser');
+
 const app = express();
-app.use(express.json());
+app.use(express.json(),cookieParser());
 app.listen(3000);
 
 const authRouter = express.Router();
@@ -15,6 +17,15 @@ authRouter
 authRouter
     .route('/login')
     .post(loginUser);
+
+
+const userRouter = express.Router();
+app.use('/', userRouter)
+    
+userRouter
+    .route('/dashboard')
+    .get(getUserData);
+
 
 
 // function getUser(req,res){
@@ -31,13 +42,14 @@ async function createAccount(req, res) {
 }
 
 async function loginUser(req, res) {
-
     try {
         let dataObj = req.body;
-        if (dataObj.email) {
+        res.cookie('isLoggedIn', 'false');
+        if (dataObj.email && dataObj.password) {
             let user = await userDataBase.findOne({ email: dataObj.email });
             if (user) {
                 if (user.password == dataObj.password) {
+                    res.cookie('isLoggedIn', 'true');
                     res.json({
                         message: "LogIn Successfully",
                         data: user
@@ -64,6 +76,20 @@ async function loginUser(req, res) {
     catch (err) {
         console.log(err);
     }
+}
 
-
+function getUserData(req,res){
+    let userData = req.body;
+    console.log(req.cookies);
+    if(req.cookies.isLoggedIn === 'true'){
+        res.json({
+            message:"In the dashborad",
+            res:userData
+        })
+    }
+    else{
+        res.json({
+            message:"Please LogIn"
+        })
+    }
 }
