@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const db_link = "mongodb+srv://admin:1rpV7TSJstEeLJ2w@cluster0.ttoep.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
 mongoose.connect(db_link)
-    .then( ()=>{
+    .then(()=>{
         console.log("db connected");
-    }).catch( (err)=>{
+    }).catch((err)=>{
         console.log(err);
     })
 
@@ -17,13 +18,19 @@ const userSchema = mongoose.Schema({
     },
     email: {
         type: String,
-        unique:true,
+        // unique:true,
         required: true,
     },
     password: {
         type: String,
         required: true,
     },
+})
+
+userSchema.pre('save', async function(){
+    let salt = await bcrypt.genSalt();
+    let hashedPassword = await bcrypt.hash(this.password,salt);
+    this.password = hashedPassword;
 })
 
 

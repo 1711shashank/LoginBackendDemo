@@ -1,5 +1,6 @@
 const express = require("express");
 const userDataBase = require('./mongoDB');
+const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 const JWT_KEY = 'skf453wdanj3rfj93nos';
 
@@ -47,7 +48,8 @@ async function loginUser(req, res) {
         if (dataObj.email && dataObj.password) {
             let user = await userDataBase.findOne({ email: dataObj.email });
             if (user) {
-                if (user.password == dataObj.password) {
+                let isVaildPassword = await bcrypt.compare(dataObj.password, user.password);
+                if (isVaildPassword) {
                     let uid = user['_id'];
                     let jwtSign = jwt.sign({payload:uid},JWT_KEY);
                     console.log(jwtSign);
