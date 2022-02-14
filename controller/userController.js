@@ -57,43 +57,7 @@ module.exports.deleteAccount = async function deleteAccount(req, res) {
     })
 }
 
-
-// module.exports.updateUserData = async function updateUserData(req, res) {
-//     try {
-//         let id = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
-//         let user = await userDataBase.findById(id);
-//         let dataToBeUpdated = req.body;
-//         if (user) {
-//             const keys = [];
-
-//             for (let key in dataToBeUpdated) {
-//                 keys.push(key);
-//             }
-
-//             console.log(keys);
-
-//             for (let i = 0; i < keys.length; i++) {
-//                 user[keys[i]] = dataToBeUpdated[keys[i]];
-//             }
-
-//             await user.save();
-//             res.json({
-//                 message: "Data Updated successfully",
-//                 data: user,
-//             });
-//         } else {
-//             res.json({
-//                 message: "User not found",
-//             });
-//         }
-//     } catch (err) {
-//         res.json({
-//             message: err.message,
-//         });
-//     }
-// };
-
-module.exports.updateUserData = async function updateUserData(req, res) {
+module.exports.updateProfile = async function updateProfile(req, res) {
     try {
         let user_ID = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
         let userData = await userDataBase.findById(user_ID);
