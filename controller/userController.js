@@ -1,6 +1,7 @@
 const userDataBase = require('../models/mongoDB');
 var jwt = require('jsonwebtoken');
 const userRouter = require('./userRouter');
+const { use } = require('./authRouter');
 const JWT_KEY = 'skf453wdanj3rfj93nos';
 
 
@@ -45,35 +46,79 @@ module.exports.getUserData = async function getUserData(req, res) {
     })
 }
 
-module.exports.updateUserData = async function updateUserData(req, res) {
-
-    let dataToBeUpdated = req.body;
-    
-    let payloadObj = jwt.verify(req.cookies.isLoggedIn, JWT_KEY);
-    let oldData = await userDataBase.findOne({ _id: payloadObj.payload});
-
-    console.log(oldData);
-
-    for(let key in dataToBeUpdated[0]){
-        oldData[key] = dataToBeUpdated[0][key];
-    }
-    let newData = oldData;
-
-    console.log(newData);
-
-    res.json({
-        message: "Update User",
-        // res: newDatas
-    })
-}
-
-module.exports.deleteAccount = async function deleteAccount(req,res){
+module.exports.deleteAccount = async function deleteAccount(req, res) {
 
     let user_ID = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
-    let user = await userDataBase.findByIdAndDelete( user_ID );
+    let user = await userDataBase.findByIdAndDelete(user_ID);
 
     res.json({
         message: "Account has been Deleted",
         res: user
-    })  
+    })
+}
+
+
+// module.exports.updateUserData = async function updateUserData(req, res) {
+//     try {
+//         let id = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
+//         let user = await userDataBase.findById(id);
+//         let dataToBeUpdated = req.body;
+//         if (user) {
+//             const keys = [];
+
+//             for (let key in dataToBeUpdated) {
+//                 keys.push(key);
+//             }
+
+//             console.log(keys);
+
+//             for (let i = 0; i < keys.length; i++) {
+//                 user[keys[i]] = dataToBeUpdated[keys[i]];
+//             }
+
+//             await user.save();
+//             res.json({
+//                 message: "Data Updated successfully",
+//                 data: user,
+//             });
+//         } else {
+//             res.json({
+//                 message: "User not found",
+//             });
+//         }
+//     } catch (err) {
+//         res.json({
+//             message: err.message,
+//         });
+//     }
+// };
+
+module.exports.updateUserData = async function updateUserData(req, res) {
+    try {
+        let user_ID = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
+        let userData = await userDataBase.findById(user_ID);
+
+        let dataToBeUpdated = req.body;
+
+        const keys = [];
+        for(let key in dataToBeUpdated){
+            keys.push(key);
+        }
+
+        for(let i=0; i<keys.length; i++){
+            userData[keys[i]] = dataToBeUpdated[keys[i]];
+        }
+
+        await userData.save();         // update the data to mongoDB
+
+        res.json({
+            message: "Data Updated successfully",
+            data: userData
+        })
+        
+    } catch (err) {
+        res.json({
+            message:err.message
+        })
+    }
 }

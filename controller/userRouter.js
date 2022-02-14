@@ -9,7 +9,11 @@ userRouter
 
 userRouter
     .route('/deleteAccount')
-    .get(deleteAccount);
+    .delete(deleteAccount);
+
+    userRouter
+    .route('/updateProfile')
+    .post(updateUserData);
 
 userRouter
     .route('/logout')
