@@ -24,7 +24,7 @@ module.exports.loginUser = async function loginUser(req, res) {
                 if (isVaildPassword) {
                     let uid = user['_id'];
                     let jwtSign = jwt.sign({payload:uid},JWT_KEY);
-                    console.log(jwtSign);
+                    // console.log(jwtSign);
                     res.cookie('isLoggedIn', jwtSign);
                     res.json({
                         message: "LogIn Successfully",

@@ -12,7 +12,7 @@ mongoose.connect(db_link)
 
 
 // database stracture
-const userSchema = mongoose.Schema({
+const userSchema = mongoose.Schema([{
     name:{
         type: String,
     },
@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-})
+}])
 
 userSchema.pre('save', async function(){
     let salt = await bcrypt.genSalt();
