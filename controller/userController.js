@@ -48,8 +48,13 @@ module.exports.getUserData = async function getUserData(req, res) {
 
 module.exports.deleteAccount = async function deleteAccount(req, res) {
 
+
     let user_ID = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
     let user = await userDataBase.findByIdAndDelete(user_ID);
+
+    console.log("Account has been Deleted");
+
+    res.cookie('isLoggedIn', 'false', { maxAge: 1000 });
 
     res.json({
         message: "Account has been Deleted",
@@ -58,6 +63,7 @@ module.exports.deleteAccount = async function deleteAccount(req, res) {
 }
 
 module.exports.updateProfile = async function updateProfile(req, res) {
+
     try {
         let user_ID = jwt.verify(req.cookies.isLoggedIn, JWT_KEY).payload;
         let userData = await userDataBase.findById(user_ID);
@@ -65,24 +71,26 @@ module.exports.updateProfile = async function updateProfile(req, res) {
         let dataToBeUpdated = req.body;
 
         const keys = [];
-        for(let key in dataToBeUpdated){
+        for (let key in dataToBeUpdated) {
             keys.push(key);
         }
 
-        for(let i=0; i<keys.length; i++){
+        for (let i = 0; i < keys.length; i++) {
             userData[keys[i]] = dataToBeUpdated[keys[i]];
         }
 
         await userData.save();         // update the data to mongoDB
 
+        console.log("Data Updated successfully");
         res.json({
             message: "Data Updated successfully",
             data: userData
         })
-        
+
     } catch (err) {
         res.json({
-            message:err.message
+            message: err.message
         })
     }
 }
+

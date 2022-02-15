@@ -1,7 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
 
-const {protectRoute, logoutUser, getUserData, updateUserData, deleteAccount} = require('./userController');
+const {protectRoute, logoutUser, getUserData, deleteAccount, updateProfile} = require('./userController');
 
 userRouter
     .route('/dashboard')
@@ -9,11 +9,11 @@ userRouter
 
 userRouter
     .route('/deleteAccount')
-    .delete(deleteAccount);
+    .post(protectRoute, deleteAccount);                                                   // password before deleting account                
 
-    userRouter
+userRouter
     .route('/updateProfile')
-    .post(updateUserData);
+    .post(protectRoute, updateProfile);
 
 userRouter
     .route('/logout')
