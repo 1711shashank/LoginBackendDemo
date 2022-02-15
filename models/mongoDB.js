@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require("crypto");
 
 const db_link = "mongodb+srv://admin:1rpV7TSJstEeLJ2w@cluster0.ttoep.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
@@ -25,7 +26,23 @@ const userSchema = mongoose.Schema([{
         type: String,
         required: true,
     },
+    resetToken:{
+        type: String
+    }
 }])
+
+userSchema.methods.createResetToken = function(){
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    this.resetToken = resetToken;
+    return resetToken;
+}
+
+userSchema.methods.resetPasswordHandler = function(password){
+
+    this.password = password;
+    this.resetToken = undefined;
+
+}
 
 userSchema.pre('save', async function(){
     let salt = await bcrypt.genSalt();
