@@ -9,6 +9,7 @@ const JWT_KEY = 'skf453wdanj3rfj93nos';
 module.exports.createAccount = async function createAccount(req, res) {
     try{
         let dataObj = req.body;
+        console.log("Backend",dataObj);
 
         let oldUser = await userDataBase.findOne({ email: dataObj.email });
         if(oldUser){
