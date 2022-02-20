@@ -21,7 +21,8 @@ module.exports.protectRoute = function protectRoute(req, res, next) {
     }
     catch {
         res.status(511).json({
-            message: 'Please Login'
+            message: 'Please Login',
+            statusCode : 511
         })
     }
 }
@@ -42,7 +43,8 @@ module.exports.getUserData = async function getUserData(req, res) {
 
     res.status(200).json({
         message: "In the dashborad",
-        res: userData
+        res: userData,
+        statusCode : 200
     })
 }
 
@@ -58,6 +60,7 @@ module.exports.deleteAccount = async function deleteAccount(req, res) {
 
     res.status(200).json({
         message: "Account has been Deleted",
+        statusCode : 200,
         res: user
     })
 }
@@ -84,12 +87,14 @@ module.exports.updateProfile = async function updateProfile(req, res) {
         console.log("Data Updated successfully");
         res.status(200).json({
             message: "Data Updated successfully",
-            data: userData
+            data: userData,
+            statusCode : 200
         })
 
     } catch (err) {
         res.status(500).json({
-            message: err.message
+            message: err.message,
+            statusCode : 500
         })
     }
 }

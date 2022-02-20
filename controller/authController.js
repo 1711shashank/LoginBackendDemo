@@ -15,6 +15,7 @@ module.exports.createAccount = async function createAccount(req, res) {
             console.log("User Already exist with this email ID");
             res.status(409).json({
                 message: "User Already exist with this email ID",
+                statusCode : 409
             });
         } else {
             let user = await userDataBase.create(dataObj);
@@ -27,13 +28,15 @@ module.exports.createAccount = async function createAccount(req, res) {
 
             res.status(200).json({
                 message: "Account created Successfully",
+                statusCode : 200,
                 data: user
             });
         }
     }
     catch(err){
         res.status(500).json({
-            message: err.message
+            message: err.message,
+            statusCode : 500
         });
         
     }
@@ -60,30 +63,36 @@ module.exports.loginUser = async function loginUser(req, res) {
 
                     res.status(200).json({
                         message: "LogIn Successfully",
+                        statusCode : 200,
                         data: user
+                        
                     });
                 }
                 else {
                     res.status(401).json({
                         message: "Invalid Password",
+                        statusCode : 401
                     });
                 }
             } else {
                 res.status(403).json({
                     message: "User does not exist",
+                    statusCode : 403
                 });
             }
         }
         else {
             return res.status(400).json({
-                message: 'Wrong credantials'
+                message: 'Wrong credantials',
+                statusCode : 400
             })
         }
     }
     catch (err) {
         console.log(err);
         res.status(500).json({
-            message:err.message
+            message:err.message,
+            statusCode : 500
         })
     }
 }
@@ -108,20 +117,23 @@ module.exports.forgetPassword = async function forgetPassword(req, res) {
 
             res.status(200).json({
                 message:"Reset Password Link has been mailed to you",
-                data: obj
+                data: obj,
+                statusCode : 200
             })
             
         } else {
             console.log("Please SignUp");
             res.status(511).json({
-                message:"Please SignUp"
+                message:"Please SignUp",
+                statusCode : 511
             })
         }
         
     }
     catch (err) {
         res.status(500).json({
-            message:err.message
+            message:err.message,
+            statusCode : 500
         })
     }
 }
@@ -139,16 +151,19 @@ module.exports.resetPassword = async function resetPassword(req, res) {
             await user.save();
 
             res.status(200).json({
-                message:"Password Changed"
+                message:"Password Changed",
+                statusCode : 200
             })
         } else {
             res.status(404).json({
-                message:"User not found with this token"
+                message:"User not found with this token",
+                statusCode : 404
             })
         }
     } catch(err) {
         res.status(500).json({
-            message: err.message
+            message: err.message,
+            statusCode : 500
         })
     }
    
