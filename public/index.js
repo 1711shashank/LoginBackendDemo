@@ -1,4 +1,3 @@
-
 var form = document.querySelector('#form');
 
 form.addEventListener('submit', (e) => {
@@ -21,7 +20,7 @@ form.addEventListener('submit', (e) => {
     .then(response => response.json())
     .then(result => {
         console.log('Success:', result);
-        window.location.href = 'C:\Users\krsha\Desktop\LoginPage\public\signup_success.html';
+        // window.location.href = 'C:\Users\krsha\Desktop\LoginPage\public\signup_success.html';
     })
     .catch(error => {
         console.error('Error:', error);

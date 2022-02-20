@@ -20,8 +20,8 @@ module.exports.protectRoute = function protectRoute(req, res, next) {
         }
     }
     catch {
-        res.json({
-            message: 'Please Login '
+        res.status(511).json({
+            message: 'Please Login'
         })
     }
 }
@@ -29,7 +29,7 @@ module.exports.protectRoute = function protectRoute(req, res, next) {
 module.exports.logoutUser = function logoutUser(req, res) {
 
     res.cookie('isLoggedIn', 'false', { maxAge: 1 });
-    res.json({
+    res.status(200).json({
         message: "User LogOut Successfully",
     })
 }
@@ -40,7 +40,7 @@ module.exports.getUserData = async function getUserData(req, res) {
 
     let userData = await userDataBase.findOne({ _id: dataObj.payload });
 
-    res.json({
+    res.status(200).json({
         message: "In the dashborad",
         res: userData
     })
@@ -56,7 +56,7 @@ module.exports.deleteAccount = async function deleteAccount(req, res) {
 
     res.cookie('isLoggedIn', 'false', { maxAge: 1000 });
 
-    res.json({
+    res.status(200).json({
         message: "Account has been Deleted",
         res: user
     })
@@ -82,13 +82,13 @@ module.exports.updateProfile = async function updateProfile(req, res) {
         await userData.save();         // update the data to mongoDB
 
         console.log("Data Updated successfully");
-        res.json({
+        res.status(200).json({
             message: "Data Updated successfully",
             data: userData
         })
 
     } catch (err) {
-        res.json({
+        res.status(500).json({
             message: err.message
         })
     }

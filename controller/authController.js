@@ -5,7 +5,6 @@ var jwt = require('jsonwebtoken');
 const { use } = require('./authRouter');
 const JWT_KEY = 'skf453wdanj3rfj93nos';
 
-
 module.exports.createAccount = async function createAccount(req, res) {
     try{
         let dataObj = req.body;
@@ -14,7 +13,7 @@ module.exports.createAccount = async function createAccount(req, res) {
         let oldUser = await userDataBase.findOne({ email: dataObj.email });
         if(oldUser){
             console.log("User Already exist with this email ID");
-            res.json({
+            res.status(409).json({
                 message: "User Already exist with this email ID",
             });
         } else {
@@ -26,14 +25,14 @@ module.exports.createAccount = async function createAccount(req, res) {
             sendMailFn("Sign Up", obj);
             console.log("Account created Successfully");
 
-            res.json({
+            res.status(200).json({
                 message: "Account created Successfully",
                 data: user
             });
         }
     }
     catch(err){
-        res.json({
+        res.status(500).json({
             message: err.message
         });
         
@@ -56,35 +55,34 @@ module.exports.loginUser = async function loginUser(req, res) {
                     obj = {
                         email : dataObj.email
                     }
-                    sendMailFn("Lon In", obj);
+                    sendMailFn("Lg In", obj);
                     console.log("You Have LoggedIn");
 
-                    res.json({
+                    res.status(200).json({
                         message: "LogIn Successfully",
                         data: user
                     });
                 }
                 else {
-                    res.json({
+                    res.status(401).json({
                         message: "Invalid Password",
                     });
                 }
             } else {
-                res.json({
+                res.status(403).json({
                     message: "User does not exist",
                 });
             }
         }
         else {
-            return res.json({
+            return res.status(400).json({
                 message: 'Wrong credantials'
             })
-
         }
     }
     catch (err) {
         console.log(err);
-        res.json({
+        res.status(500).json({
             message:err.message
         })
     }
@@ -103,26 +101,26 @@ module.exports.forgetPassword = async function forgetPassword(req, res) {
 
             let obj = {
                 email : email,
+                resetToken: resetToken,
                 resetPasswordLink : resetTokenLink
             }
             sendMailFn("Reset Password", obj);
 
-            res.json({
+            res.status(200).json({
                 message:"Reset Password Link has been mailed to you",
                 data: obj
             })
             
         } else {
             console.log("Please SignUp");
-            res.json({
-                message:"Please SignUp "
+            res.status(511).json({
+                message:"Please SignUp"
             })
         }
         
     }
     catch (err) {
-        console.log(err);
-        res.json({
+        res.status(500).json({
             message:err.message
         })
     }
@@ -140,16 +138,16 @@ module.exports.resetPassword = async function resetPassword(req, res) {
             user.resetPasswordHandler(password);
             await user.save();
 
-            res.json({
+            res.status(200).json({
                 message:"Password Changed"
             })
         } else {
-            res.json({
+            res.status(404).json({
                 message:"User not found with this token"
             })
         }
     } catch(err) {
-        res.json({
+        res.status(500).json({
             message: err.message
         })
     }
