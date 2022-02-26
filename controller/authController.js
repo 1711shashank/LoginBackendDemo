@@ -13,7 +13,6 @@ module.exports.createAccount = async function createAccount(req, res) {
 
         let oldUser = await userDataBase.findOne({ email: dataObj.email });
         if (oldUser) {
-            console.log("User Already exist with this email ID");
             res.status(409).json({
                 message: "User Already exist with this email ID",
                 statusCode: 409
@@ -25,7 +24,6 @@ module.exports.createAccount = async function createAccount(req, res) {
                 password: dataObj.password
             }
             sendMailFn("Sign Up", obj);
-            console.log("Account created Successfully");
 
             res.status(200).json({
                 message: "Account created Successfully",
@@ -46,7 +44,7 @@ module.exports.createAccount = async function createAccount(req, res) {
 module.exports.loginUser = async function loginUser(req, res) {
     try {
         let dataObj = req.body;
-
+        res.cookie('isLoggedIn', 'false');
         if (dataObj.email && dataObj.password) {
             let user = await userDataBase.findOne({ email: dataObj.email });
             if (user) {
@@ -54,49 +52,46 @@ module.exports.loginUser = async function loginUser(req, res) {
                 if (isVaildPassword) {
                     let uid = user['_id'];
                     let jwtSign = jwt.sign({ payload: uid }, JWT_KEY);
-                    // res.cookie('isLoggedIn', jwtSign);
-                    // res.setHeader('Set-Cookie','test=value');
-
-                    res.cookie('authorization', jwtSign, { httpOnly: false });
+                    res.cookie('isLoggedIn', jwtSign);
 
                     obj = {
-                        email: dataObj.email
+                        email : dataObj.email
                     }
-                    sendMailFn("Log In", obj);
-                    console.log("You Have LoggedIn 123");
-                    console.log("YAhe hai", req.cookies.authorization);
+                    sendMailFn("Lg In", obj);
+                    console.log("You Have LoggedIn");
 
                     res.status(200).json({
                         message: "LogIn Successfully",
-                        statusCode: 200,
-                        data: user,
+                        statusCode : 200,
+                        data: user
+                        
                     });
                 }
                 else {
                     res.status(401).json({
                         message: "Invalid Password",
-                        statusCode: 401
+                        statusCode : 401
                     });
                 }
             } else {
                 res.status(403).json({
                     message: "User does not exist",
-                    statusCode: 403
+                    statusCode : 403
                 });
             }
         }
         else {
             return res.status(400).json({
-                message: 'Invalid credantials',
-                statusCode: 400
+                message: 'Wrong credantials',
+                statusCode : 400
             })
         }
     }
     catch (err) {
         console.log(err);
         res.status(500).json({
-            message: err.message,
-            statusCode: 500
+            message:err.message,
+            statusCode : 500
         })
     }
 }
@@ -126,9 +121,8 @@ module.exports.forgetPassword = async function forgetPassword(req, res) {
             })
 
         } else {
-            console.log("Please SignUp");
             res.status(511).json({
-                message: "Please SignUp",
+                message: "No User exist with this Email",
                 statusCode: 511
             })
         }
@@ -160,7 +154,7 @@ module.exports.resetPassword = async function resetPassword(req, res) {
             })
         } else {
             res.status(404).json({
-                message: "User not found with this token",
+                message: "Your Reset Password link has expired",
                 statusCode: 404
             })
         }

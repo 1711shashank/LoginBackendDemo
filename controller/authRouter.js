@@ -7,13 +7,6 @@ const { createAccount, loginUser, forgetPassword, resetPassword } = require('./a
 authRouter
     .route('/signup')
     .post(createAccount);
-authRouter.get('/cookies', (req,res) =>{
-    // console.log(res);
-    res.cookie('testCookie',"Shashank Test Cookies");
-    res.send({
-        message: "Testtttttting"
-    })
-})
 authRouter
     .route('/login')
     .post(loginUser);
