@@ -6,6 +6,7 @@ const JWT_KEY = 'skf453wdanj3rfj93nos';
 
 
 module.exports.protectRoute = function protectRoute(req, res, next) {
+    console.log("Outside protectRoute");
     // checking wether user is logged In or not using cookies (JWT encrypted cookies)
     try {
 
@@ -14,15 +15,24 @@ module.exports.protectRoute = function protectRoute(req, res, next) {
         // we can also skip the if() conduction and directly write the statement inside it
 
         // req.cookies.isLoggedIn this hashValue contain payload (_id), so while verifying [_id] is not required
-        let isVerified = jwt.verify(req.cookies.isLoggedIn, JWT_KEY);
+        
+        console.log(req.cookies, req.headers['Authorization']);
+        let JWTtoken = req.headers['Authorization'];
+
+        let isVerified = jwt.verify(JWTtoken, JWT_KEY);                 // isVerified => payload
+
         if (isVerified) {
+            res.locals.authenticated = true;
+            res.locals.payload = isVerified;
             next();
         }
     }
-    catch {
+    catch(err) {
+        console.log("protechRoute",err);
         res.status(511).json({
-            message: 'Please Login',
+            message: 'Please Login /protectRoute',
             statusCode : 511
+            
         })
     }
 }
@@ -32,13 +42,23 @@ module.exports.logoutUser = function logoutUser(req, res) {
     res.cookie('isLoggedIn', 'false', { maxAge: 1 });
     res.status(200).json({
         message: "User LogOut Successfully",
+        statusCode : 200
+
     })
 }
 
 module.exports.getUserData = async function getUserData(req, res) {
 
-    let dataObj = jwt.verify(req.cookies.isLoggedIn, JWT_KEY);
+    console.log("Working");
 
+    if( !res.locals.authenticated){
+        res.status(400).json({
+            message: "Invalid Token TODO:",
+            statusCode : 400
+        })
+    }    
+
+    let dataObj = res.locals.payload;                               // payload => _id
     let userData = await userDataBase.findOne({ _id: dataObj.payload });
 
     res.status(200).json({
@@ -61,7 +81,7 @@ module.exports.deleteAccount = async function deleteAccount(req, res) {
     res.status(200).json({
         message: "Account has been Deleted",
         statusCode : 200,
-        res: user
+        data: user
     })
 }
 

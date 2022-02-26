@@ -3,49 +3,50 @@ const nodemailer = require("nodemailer");
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 const { use } = require('./authRouter');
+const { cookie } = require('express/lib/response');
 const JWT_KEY = 'skf453wdanj3rfj93nos';
 
 module.exports.createAccount = async function createAccount(req, res) {
-    try{
+    try {
         let dataObj = req.body;
-        console.log("Backend",dataObj);
+        console.log("Backend", dataObj);
 
         let oldUser = await userDataBase.findOne({ email: dataObj.email });
-        if(oldUser){
+        if (oldUser) {
             console.log("User Already exist with this email ID");
             res.status(409).json({
                 message: "User Already exist with this email ID",
-                statusCode : 409
+                statusCode: 409
             });
         } else {
             let user = await userDataBase.create(dataObj);
             let obj = {
-                email : dataObj.email,
-                password : dataObj.password
+                email: dataObj.email,
+                password: dataObj.password
             }
             sendMailFn("Sign Up", obj);
             console.log("Account created Successfully");
 
             res.status(200).json({
                 message: "Account created Successfully",
-                statusCode : 200,
+                statusCode: 200,
                 data: user
             });
         }
     }
-    catch(err){
+    catch (err) {
         res.status(500).json({
             message: err.message,
-            statusCode : 500
+            statusCode: 500
         });
-        
+
     }
 }
 
 module.exports.loginUser = async function loginUser(req, res) {
     try {
         let dataObj = req.body;
-        res.cookie('isLoggedIn', 'false');
+
         if (dataObj.email && dataObj.password) {
             let user = await userDataBase.findOne({ email: dataObj.email });
             if (user) {
@@ -53,55 +54,58 @@ module.exports.loginUser = async function loginUser(req, res) {
                 if (isVaildPassword) {
                     let uid = user['_id'];
                     let jwtSign = jwt.sign({ payload: uid }, JWT_KEY);
-                    res.cookie('isLoggedIn', jwtSign);
+                    // res.cookie('isLoggedIn', jwtSign);
+                    // res.setHeader('Set-Cookie','test=value');
+
+                    res.cookie('authorization', jwtSign, { httpOnly: false });
 
                     obj = {
-                        email : dataObj.email
+                        email: dataObj.email
                     }
-                    sendMailFn("Lg In", obj);
-                    console.log("You Have LoggedIn");
+                    sendMailFn("Log In", obj);
+                    console.log("You Have LoggedIn 123");
+                    console.log("YAhe hai", req.cookies.authorization);
 
                     res.status(200).json({
                         message: "LogIn Successfully",
-                        statusCode : 200,
-                        data: user
-                        
+                        statusCode: 200,
+                        data: user,
                     });
                 }
                 else {
                     res.status(401).json({
                         message: "Invalid Password",
-                        statusCode : 401
+                        statusCode: 401
                     });
                 }
             } else {
                 res.status(403).json({
                     message: "User does not exist",
-                    statusCode : 403
+                    statusCode: 403
                 });
             }
         }
         else {
             return res.status(400).json({
-                message: 'Wrong credantials',
-                statusCode : 400
+                message: 'Invalid credantials',
+                statusCode: 400
             })
         }
     }
     catch (err) {
         console.log(err);
         res.status(500).json({
-            message:err.message,
-            statusCode : 500
+            message: err.message,
+            statusCode: 500
         })
     }
 }
 
 module.exports.forgetPassword = async function forgetPassword(req, res) {
     try {
-        let {email} = req.body;
-        let user = await userDataBase.findOne({ email : email });
-        if(user){
+        let { email } = req.body;
+        let user = await userDataBase.findOne({ email: email });
+        if (user) {
 
             const resetToken = user.createResetToken();
             user.save();
@@ -109,64 +113,64 @@ module.exports.forgetPassword = async function forgetPassword(req, res) {
             let resetTokenLink = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
 
             let obj = {
-                email : email,
+                email: email,
                 resetToken: resetToken,
-                resetPasswordLink : resetTokenLink
+                resetPasswordLink: resetTokenLink
             }
             sendMailFn("Reset Password", obj);
 
             res.status(200).json({
-                message:"Reset Password Link has been mailed to you",
+                message: "Reset Password Link has been mailed to you",
                 data: obj,
-                statusCode : 200
+                statusCode: 200
             })
-            
+
         } else {
             console.log("Please SignUp");
             res.status(511).json({
-                message:"Please SignUp",
-                statusCode : 511
+                message: "Please SignUp",
+                statusCode: 511
             })
         }
-        
+
     }
     catch (err) {
         res.status(500).json({
-            message:err.message,
-            statusCode : 500
+            message: err.message,
+            statusCode: 500
         })
     }
 }
 
 module.exports.resetPassword = async function resetPassword(req, res) {
-    try{
+    try {
         const token = req.params.hashToken;
 
-        let {password} = req.body;
-        const user = await userDataBase.findOne({resetToken : token});
+        let { password } = req.body;
+        const user = await userDataBase.findOne({ resetToken: token });
 
-        if(user){
+        if (user) {
 
             user.resetPasswordHandler(password);
             await user.save();
 
             res.status(200).json({
-                message:"Password Changed",
-                statusCode : 200
+                message: "Password Changed",
+                statusCode: 200
             })
         } else {
             res.status(404).json({
-                message:"User not found with this token",
-                statusCode : 404
+                message: "User not found with this token",
+                statusCode: 404
             })
         }
-    } catch(err) {
+    } catch (err) {
         res.status(500).json({
             message: err.message,
-            statusCode : 500
+            statusCode: 500
         })
     }
-   
+
 }
 
 async function sendMailFn(mailSubject, obj) {
@@ -181,7 +185,7 @@ async function sendMailFn(mailSubject, obj) {
             },
         });
 
-        if(mailSubject === "Sign Up"){
+        if (mailSubject === "Sign Up") {
             let info = await transporter.sendMail({
                 from: '"Fred Foo 👻" <1711shashank@gmail.com>', // sender address
                 to: obj.email, // list of receivers
@@ -189,7 +193,7 @@ async function sendMailFn(mailSubject, obj) {
                 text: `Your account has been created \n email: ${obj.email} \n password: ${obj.password}` // plain text body
             });
         }
-        else if(mailSubject === "Lon In"){
+        else if (mailSubject === "Lon In") {
             let info = await transporter.sendMail({
                 from: '"Fred Foo 👻" <1711shashank@gmail.com>', // sender address
                 to: obj.email, // list of receivers
@@ -197,7 +201,7 @@ async function sendMailFn(mailSubject, obj) {
                 text: "You Have LoggedIn" // plain text body
             });
         }
-        else if(mailSubject == "Reset Password"){
+        else if (mailSubject == "Reset Password") {
             console.log(obj.resetPasswordLink);
             let info = await transporter.sendMail({
                 from: '"LogIn Page" <1711shashank@gmail.com>', // sender address

@@ -9,7 +9,7 @@ userRouter
 
 userRouter
     .route('/deleteAccount')
-    .post(protectRoute, deleteAccount);                                                   // password before deleting account                
+    .post(protectRoute, deleteAccount);                                   // password before deleting account                
 
 userRouter
     .route('/updateProfile')
