@@ -1,7 +1,7 @@
 const express = require("express");
 var cors = require('cors');
 var cookieParser = require('cookie-parser');
-require ("dotenv").config;
+require ("dotenv").config();
 const app = express();
 
 app.use(cors({ origin: true, optionsSuccessStatus: 200, credentials: true }));

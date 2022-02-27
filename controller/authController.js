@@ -105,7 +105,7 @@ module.exports.forgetPassword = async function forgetPassword(req, res) {
             const resetToken = user.createResetToken();
             user.save();
 
-            let resetTokenLink = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
+            let resetTokenLink = `https://loginfrontendshashank.netlify.app/resetPassword/${resetToken}`;
 
             let obj = {
                 email: email,
